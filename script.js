@@ -71,29 +71,119 @@ const displayMovements = (movements) => {
     const html = `
     <div class="movements__row">
       <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
-      <div class="movements__value">${mov}</div>
+      <div class="movements__value">${mov}€</div>
    </div>
     `
     containerMovements.insertAdjacentHTML('afterbegin', html)
   });
 }
-displayMovements(account1.movements)
 
-const calcDisplayBalance = (movements) => {
-  const balance = movements.reduce((accumulator, curr) => accumulator + curr, 0)
-  labelBalance.textContent = `${balance}€`
+
+const calcDisplayBalance = (acc) => {
+  acc.balance = acc.movements.reduce((accumulator, curr) => accumulator + curr, 0)
+  
+  labelBalance.textContent = `${acc.balance}€`
 }
-calcDisplayBalance(account1.movements)
+
+const calcDisplaySummary = (acc) => {
+  const incomes = acc.movements.filter((mov) => mov > 0).reduce((acc, mov) => acc + mov, 0)
+  labelSumIn.textContent = `${incomes}€`
+
+  const out = acc.movements.filter((mov) => mov < 0).reduce((acc, mov) => acc + mov, 0)
+  labelSumOut.textContent = `${Math.abs(out)}€`
+
+  const interest = acc.movements.filter((mov) => mov > 0).map(deposit => deposit * acc.interestRate / 100).filter((interest, i, arr) => {
+    return interest >= 1;
+  }).reduce((acc, interest) => acc + interest, 0)
+  labelSumInterest.textContent = `${interest}€`
+}
 
 const createUsernames = (accs) => {
   accs.forEach((acc) => {
-    acc.username = acc.owner.toLowerCase().split(' ').map((name) => name[0]).join('') 
+    acc.username = acc.owner.toLowerCase().split(' ').map((name) => name[0]).join('')
   })
 }
 createUsernames(accounts)
 
+const updateUI = (acc) => {
+      // Display movements
+      displayMovements(acc.movements)
+
+      // Display balance
+      calcDisplayBalance(acc)
+  
+      // Display summary
+      calcDisplaySummary(acc)
+}
+
+// event handlers
+let currentAccount
+
+btnLogin.addEventListener('click', (e) => {
+  e.preventDefault()
+
+  currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value)
+  console.log(currentAccount);
+
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    // Display UI and a welcome message
+    labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`
+    containerApp.style.opacity = 1
+
+    // Clear input fields
+    inputLoginUsername.value = inputLoginPin.value = ''
+
+    updateUI(currentAccount)
+  }
+})
 
 
+btnTransfer.addEventListener('click', (e) => {
+  e.preventDefault()
+
+  const amount = Number(inputTransferAmount.value)
+  const receiverAcc = accounts.find(acc => acc.username === inputTransferTo.value)
+  
+  inputTransferAmount.value = inputTransferTo.value = ''
+
+  if (amount > 0 && receiverAcc && currentAccount.balance >= amount && receiverAcc?.username !== currentAccount.username) {
+    // doing the transfer
+    currentAccount.movements.push(-amount)
+    receiverAcc.movements.push(amount)
+
+    // update UI
+    updateUI(currentAccount)
+  }
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+//Getting maximum value
+// const max = movements.reduce((acc, mov) => {
+//   if (acc > mov) return acc
+//   else return mov
+// }, movements[0])
+
+// const eurToUsd = 1.1
+// const totalDepositsUSD = movements.filter(mov => mov > 0).map(mov => mov * eurToUsd).reduce((acc, curr) => acc + curr, 0)
+// console.log(totalDepositsUSD);
 
 
 
@@ -113,8 +203,7 @@ createUsernames(accounts)
 
 /////////////////////////////////////////////////
 
-const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
-const deposits = movements.filter((mov) => mov > 0)
+// const deposits = movements.filter((mov) => mov > 0)
 
-const withdrawals = movements.filter((mov) => mov < 0)
+// const withdrawals = movements.filter((mov) => mov < 0)
