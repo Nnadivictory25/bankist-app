@@ -63,9 +63,12 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 
 
-const displayMovements = (movements) => {
+const displayMovements = (movements, sort = false) => {
   containerMovements.innerHTML = ''
-  movements.forEach((mov, i) => {
+
+  const movs = sort ? movements.slice().sort((a, b) => a - b).reverse() : movements
+    
+  movs.forEach((mov, i) => {
     const type = mov > 0 ? 'deposit' : 'withdrawal'
 
     const html = `
@@ -123,7 +126,7 @@ btnLogin.addEventListener('click', (e) => {
   e.preventDefault()
 
   currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value)
-  console.log(currentAccount);
+  // console.log(currentAccount);
 
   if (currentAccount?.pin === Number(inputLoginPin.value)) {
     // Display UI and a welcome message
@@ -156,6 +159,65 @@ btnTransfer.addEventListener('click', (e) => {
   }
 })
 
+btnLoan.addEventListener('click', (e) => {
+  e.preventDefault()
+
+  const amount = Number(inputLoanAmount.value)
+
+  if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
+    // Add movement
+    currentAccount.movements.push(amount)
+
+    //Update UI
+    updateUI(currentAccount)
+  }
+  inputLoanAmount.value = ''
+})
+
+
+btnClose.addEventListener('click', (e) => {
+  e.preventDefault()
+
+  if (inputCloseUsername.value === currentAccount.username && Number(inputClosePin.value) === currentAccount.pin) {
+    
+    const index = accounts.findIndex(acc => acc.username === currentAccount.username)
+
+    // delete account
+    accounts.splice(index, 1)
+
+    // hide ui
+    containerApp.style.opacity = 0
+  }
+
+  inputCloseUsername.value = inputClosePin.value = ''
+})
+
+// Sort
+let sorted = false
+btnSort.addEventListener('click', (e) => {
+  e.preventDefault()
+
+  sorted = !sorted
+  displayMovements(currentAccount.movements, sorted)
+})
+
+
+
+
+
+
+
+
+
+
+// flat method
+const overallBalance = accounts.map(acc => acc.movements).flat().reduce((acc, curr) => acc + curr, 0)
+// console.log(overallBalance);
+
+//flat map method
+const overallBalance2 = accounts.flatMap(acc => acc.movements).reduce((acc, curr) => acc + curr, 0)
+//  Flat Map method maps through an array and performs the flat method on the result
+// console.log(overallBalance2);
 
 
 
@@ -170,11 +232,7 @@ btnTransfer.addEventListener('click', (e) => {
 
 
 
-
-
-
-
-// const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 //Getting maximum value
 // const max = movements.reduce((acc, mov) => {
 //   if (acc > mov) return acc
@@ -207,3 +265,29 @@ btnTransfer.addEventListener('click', (e) => {
 // const deposits = movements.filter((mov) => mov > 0)
 
 // const withdrawals = movements.filter((mov) => mov < 0)
+
+// const owners = ['Jonas', 'Zach', 'Adam', 'Martha']
+// console.log(owners.sort());
+
+
+// Ascending Sorting
+// movements.sort((a, b) => {
+//   if (a > b)
+//     return 1
+//   if (b > a)
+//     return -1
+// })
+movements.sort((a, b) => a -b)
+console.log(movements);
+
+
+// Descending
+// movements.sort((a, b) => {
+//   if (a > b)
+//     return -1
+//   if (b > a)
+//     return 1
+// })
+movements.sort((a, b) => b - a)
+
+console.log(movements);
