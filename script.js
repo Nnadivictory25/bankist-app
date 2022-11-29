@@ -278,7 +278,6 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 //     return -1
 // })
 movements.sort((a, b) => a -b)
-console.log(movements);
 
 
 // Descending
@@ -290,4 +289,151 @@ console.log(movements);
 // })
 movements.sort((a, b) => b - a)
 
-console.log(movements);
+
+// Array.from
+labelBalance.addEventListener('click', () => {
+  
+  const movementsUI = Array.from(document.querySelectorAll('.movements__value')).map(el => Number(el.textContent.replace('€', '')))
+  console.log(movementsUI);
+})
+
+// Working with nested arrays
+const bankDepositSum = accounts
+  .flatMap(acc => acc.movements)
+  .filter(mov => mov > 0)
+  .reduce((sum, cur) => sum + cur, 0);
+
+// console.log(bankDepositSum);
+
+// Number of deposits greater than 1K
+// const numDeposits1000 = accounts.flatMap(acc => acc.movements).filter(mov => mov >= 1000).length
+
+// OR
+const numDeposits1000 = accounts.flatMap(acc => acc.movements).reduce((count, curr) => curr >= 1000 ? ++count : count, 0)
+// console.log(numDeposits1000);
+
+
+// Reduce superpower
+const sums = accounts.flatMap(acc => acc.movements).reduce((sums, currentValue) => {
+  // currentValue > 0 ? sums.deposits += currentValue : sums.withdrawals += currentValue
+  // OR
+  sums[currentValue > 0 ? 'deposits' : 'withdrawals'] += currentValue
+
+  return sums;
+}, { deposits: 0, withdrawals: 0 })
+// console.log(sums);
+
+// Converting title case string
+// eg : this is a nice title case -> This Is a Nice Title
+
+const convertTitleCase = (title) => {
+
+  const capitalize = str => str[0].toUpperCase() + str.slice(1)
+  
+  const exceptions = ['a', 'an', 'and', 'the', 'but', 'or', 'on', 'in', 'with']
+
+  const titleCase = title.toLowerCase().split(' ').map(word => exceptions.includes(word) ? word : capitalize(word)).join(' ')
+  return capitalize(titleCase)
+}
+
+// console.log(convertTitleCase('this is a nice title'));
+// console.log(convertTitleCase('this is a LONG title but not too long'));
+// console.log(convertTitleCase('and here is another title with an EXAMPLE'));
+
+
+
+
+///////////////////////////////////////
+// Coding Challenge #4
+
+
+// Julia and Kate are still studying dogs, and this time they are studying if dogs are eating too much or too little.
+// Eating too much means the dog's current food portion is larger than the recommended portion, and eating too little is the opposite.
+// Eating an okay amount means the dog's current food portion is within a range 10% above and 10% below the recommended portion (see hint).
+// 1. Loop over the array containing dog objects, and for each dog, calculate the recommended food portion and add it to the object as a new property. Do NOT create a new array, simply loop over the array. Forumla: recommendedFood = weight ** 0.75 * 28. (The result is in grams of food, and the weight needs to be in kg)
+// 2. Find Sarah's dog and log to the console whether it's eating too much or too little. HINT: Some dogs have multiple owners, so you first need to find Sarah in the owners array, and so this one is a bit tricky (on purpose) 🤓
+// 3. Create an array containing all owners of dogs who eat too much ('ownersEatTooMuch') and an array with all owners of dogs who eat too little ('ownersEatTooLittle').
+// 4. Log a string to the console for each array created in 3., like this: "Matilda and Alice and Bob's dogs eat too much!" and "Sarah and John and Michael's dogs eat too little!"
+// 5. Log to the console whether there is any dog eating EXACTLY the amount of food that is recommended (just true or false)
+// 6. Log to the console whether there is any dog eating an OKAY amount of food (just true or false)
+// 7. Create an array containing the dogs that are eating an OKAY amount of food (try to reuse the condition used in 6.)
+// 8. Create a shallow copy of the dogs array and sort it by recommended food portion in an ascending order (keep in mind that the portions are inside the array's objects)
+// HINT 1: Use many different tools to solve these challenges, you can use the summary lecture to choose between them 😉
+// HINT 2: Being within a range 10% above and below the recommended portion means: current > (recommended * 0.90) && current < (recommended * 1.10). Basically, the current portion should be between 90% and 110% of the recommended portion.
+// TEST DATA:
+const dogs = [
+  { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
+  { weight: 8, curFood: 200, owners: ['Matilda'] },
+  { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
+  { weight: 32, curFood: 340, owners: ['Michael'] }
+];
+// GOOD LUCK 😀
+
+// 1.
+
+dogs.forEach(dog => {
+  dog.recommendedFood = dog.weight ** 0.75 * 28
+})
+
+// 2.
+
+const checkSarahDog = () => {
+  const sarahDog = dogs.flatMap(dog => dog.owners.includes('Sarah') ? dog : false).filter(obj => obj !== false)[0]
+  let withinRange = false
+
+  if (sarahDog.curFood > (sarahDog.recommendedFood * 0.90) && sarahDog.curFood < (sarahDog.recommendedFood * 1.10)) {
+    console.log(`Sarah's dog eats okay`);
+    withinRange = !withinRange
+  }
+  else if (!withinRange && sarahDog.curFood > sarahDog.recommendedFood) {
+    console.log(`Sarah's dog eats too much`);
+  } else if (!withinRange && sarahDog.curFood < sarahDog.recommendedFood) {
+    console.log(`Sarah's dog eats too small`);
+  }
+}
+checkSarahDog()
+
+// 3.
+
+let ownersEatTooMuch = []
+let ownersEatTooLittle = []
+
+const checkDogOwners = () => {
+  let withinRange = false
+  
+  for (let i = 0; i < dogs.length; i++) {
+
+    if (dogs[i].curFood > (dogs[i].recommendedFood * 0.90) && dogs[i].curFood < (dogs[i].recommendedFood * 1.10)) {
+      withinRange = !withinRange
+    }
+    else if (!withinRange && dogs[i].curFood > dogs[i].recommendedFood) {
+      ownersEatTooMuch.push(...dogs[i].owners)
+    } else if (!withinRange && dogs[i].curFood < dogs[i].recommendedFood) {
+      ownersEatTooLittle.push(...dogs[i].owners)
+    }
+  }
+
+}
+checkDogOwners()
+console.log(ownersEatTooMuch);
+console.log(ownersEatTooLittle);
+
+// 4.
+const logMessage = () => {
+  let message1 = ownersEatTooMuch.join(' and ')
+  let message2 = ownersEatTooLittle.join(' and ')
+  const s = `'s`
+  console.log(`${message1 + s} Dog eat too much !`);
+  console.log(`${message2 + s} Dog eat too little !`);
+}
+logMessage()
+
+
+
+
+
+
+
+
+
+console.log(dogs);
