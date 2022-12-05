@@ -277,7 +277,7 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 //   if (b > a)
 //     return -1
 // })
-movements.sort((a, b) => a -b)
+movements.sort((a, b) => a - b)
 
 
 // Descending
@@ -372,7 +372,7 @@ const dogs = [
 // 1.
 
 dogs.forEach(dog => {
-  dog.recommendedFood = dog.weight ** 0.75 * 28
+  dog.recommendedFood = Math.trunc(dog.weight ** 0.75 * 28)
 })
 
 // 2.
@@ -428,12 +428,45 @@ const logMessage = () => {
 }
 logMessage()
 
+// 5.
+const dogEatExact = dogs.some(dog => dog.curFood === dog.recommendedFood)
+console.log(dogEatExact);
+
+// 6
+const okayAmount = dogs.find(dog => dog.curFood > (dog.recommendedFood * 0.90) && dog.curFood < (dog.recommendedFood * 1.10))
+console.log(okayAmount !== undefined);
+
+// 7
+let okayAmountArray = []
+okayAmountArray.push(okayAmount.owners)
+console.log(okayAmountArray.flat());
+
+// 8
+ 
+let sortedReccommendedFoods = dogs.map(dog => dog.recommendedFood).sort((a, b) => a - b)
+
+
+const sortDogs = () => {
+  const findDog = (index) => dogs.find(dog => dog.recommendedFood === sortedReccommendedFoods[index])
+  let sortedDogs = []
+  
+  let dog1 = findDog(0)
+  let dog2 = findDog(1)
+  let dog3 = findDog(2)
+  let dog4 = findDog(3)
+
+  sortedDogs.push(dog1, dog2, dog3, dog4)
+  console.log(sortedDogs);
+}
+sortDogs()
+
+// or
+
+const dogsSortedCopy = dogs.slice().sort((a, b) => a.recommendedFood - b.recommendedFood)
+console.log(dogsSortedCopy);
+
+// console.log(sortedDogs);
 
 
 
-
-
-
-
-
-console.log(dogs);
+// console.log(dogs);
